@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Sri Devi Textiles</title>
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+</head>
+<body class="admin-site">
+
+  <!-- Login Page -->
+  <div id="admin-login" class="admin-login">
+    <div class="login-card">
+      <img src="assets/logo.png" alt="Sri Devi Textiles">
+      <p class="login-brand">SRI DEVI TEXTILES</p>
+      <h1>Admin Panel</h1>
+      <p class="login-sub">Welcome Back! Please sign in to your account.</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="username">Email / Username</label>
+          <input type="text" id="username" name="username" required placeholder="Enter username" autocomplete="username">
+        </div>
+        <div class="form-group password-field">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input type="password" id="password" name="password" required placeholder="Enter password" autocomplete="current-password">
+            <button type="button" class="toggle-pw" id="toggle-password" aria-label="Show password">👁</button>
+          </div>
+        </div>
+        <div class="login-options">
+          <label class="checkbox-group"><input type="checkbox" name="remember"> Remember Me</label>
+          <a href="#" class="forgot-link" onclick="return false;">Forgot Password?</a>
+        </div>
+        <button type="submit" class="btn btn-red btn-block">Log In</button>
+        <p class="login-error" id="login-error"></p>
+      </form>
+      <p class="login-copy">© 2026 Sri Devi Textiles. All Rights Reserved.</p>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="admin-panel" class="admin-panel hidden">
+    <aside class="admin-sidebar">
+      <div class="logo">
+        <img src="assets/logo.png" alt="Sri Devi Textiles">
+      </div>
+      <ul class="admin-nav">
+        <li><button data-admin-nav="dashboard" class="active">📊 Dashboard</button></li>
+        <li><button data-admin-nav="products">📦 Products</button></li>
+        <li><button data-admin-nav="orders">🛒 Orders</button></li>
+        <li><button data-admin-nav="reviews">⭐ Reviews</button></li>
+        <li><button data-admin-nav="customers">👥 Customers</button></li>
+        <li><button data-admin-nav="settings">⚙ Settings</button></li>
+      </ul>
+      <button class="admin-logout-sidebar" id="logout-btn-sidebar">Logout</button>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1 id="admin-page-title">Dashboard</h1>
+          <p class="admin-welcome">Welcome back, Admin! Here's what's happening with your store today.</p>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="date-filter-wrap">
+            <button type="button" class="date-filter-btn" id="date-filter-btn">📅 This Month</button>
+            <div class="date-filter-dropdown" id="date-filter-dropdown"></div>
+          </div>
+          <a href="index.html" class="btn btn-outline btn-sm" target="_blank">View Store →</a>
+          <button class="btn btn-red btn-sm" id="logout-btn">Logout</button>
+        </div>
+      </div>
+
+      <!-- Dashboard View -->
+      <div id="view-dashboard" class="admin-view active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>Total Products</h3>
+            <div class="stat-value" id="stat-products">0</div>
+            <div id="stat-products-growth"></div>
+          </div>
+          <div class="stat-card">
+            <h3>Total Orders</h3>
+            <div class="stat-value" id="stat-orders">0</div>
+            <div id="stat-orders-growth"></div>
+          </div>
+          <div class="stat-card">
+            <h3>Total Customers</h3>
+            <div class="stat-value" id="stat-customers">0</div>
+            <div id="stat-customers-growth"></div>
+          </div>
+          <div class="stat-card">
+            <h3>Total Revenue</h3>
+            <div class="stat-value" id="stat-revenue">₹0</div>
+            <div id="stat-revenue-growth"></div>
+          </div>
+        </div>
+
+        <div class="dashboard-extra-stats" id="dashboard-extra-stats"></div>
+
+        <div class="admin-grid-2">
+          <div class="admin-card">
+            <div class="admin-card-header">Sales Overview <select class="chart-filter"><option>This Month</option></select></div>
+            <div class="admin-card-body">
+              <canvas id="revenue-chart"></canvas>
+            </div>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-header">Recent Orders <a href="#" class="view-all-link" onclick="document.querySelector('[data-admin-nav=orders]').click();return false;">View All</a></div>
+            <div class="admin-card-body admin-table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr>
+                </thead>
+                <tbody id="recent-orders-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-header">Recent Products</div>
+          <div class="admin-card-body admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th></tr>
+              </thead>
+              <tbody id="recent-products-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products View -->
+      <div id="view-products" class="admin-view">
+        <div class="admin-toolbar">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <input type="search" id="product-search" placeholder="Search products...">
+            <select id="product-filter-category">
+              <option value="">All Categories</option>
+              <option value="women">Women</option>
+              <option value="men">Men</option>
+              <option value="kids">Kids</option>
+              <option value="accessories">Accessories</option>
+              <option value="signature">Signature Collection</option>
+            </select>
+          </div>
+          <button class="btn btn-red btn-sm" id="add-product-btn">+ Add Product</button>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-body admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Product Name</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="products-table-body"></tbody>
+            </table>
+            <div class="table-footer-wrap">
+              <div class="table-footer" id="products-table-footer"></div>
+              <div class="pagination table-pagination" id="products-table-pagination"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders View -->
+      <div id="view-orders" class="admin-view">
+        <p class="period-summary" id="orders-period-summary"></p>
+        <div class="admin-card">
+          <div class="admin-card-header">All Orders</div>
+          <div class="admin-card-body admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Email</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews View -->
+      <div id="view-reviews" class="admin-view">
+        <div class="admin-toolbar">
+          <p class="period-summary" id="reviews-period-summary">Reviews sync automatically to the user website.</p>
+          <button class="btn btn-gold btn-sm" id="add-review-btn">+ Add Review</button>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-body admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Customer</th><th>Rating</th><th>Review</th><th>Date</th><th>Action</th></tr>
+              </thead>
+              <tbody id="reviews-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customers View -->
+      <div id="view-customers" class="admin-view">
+        <p class="period-summary" id="customers-summary"></p>
+        <div class="admin-card">
+          <div class="admin-card-header">Customer Directory</div>
+          <div class="admin-card-body admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Last Order</th></tr></thead>
+              <tbody id="customers-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings View -->
+      <div id="view-settings" class="admin-view">
+        <div class="admin-card">
+          <div class="admin-card-header">Store Settings</div>
+          <div class="admin-card-body settings-form">
+            <div class="form-group"><label>Store Name</label><input type="text" value="Sri Devi Textiles" readonly></div>
+            <div class="form-group"><label>Tagline</label><input type="text" value="Traditional & Modern Collection" readonly></div>
+            <div class="form-group"><label>Email</label><input type="email" value="info@sridevtextiles.com"></div>
+            <div class="form-group"><label>Phone</label><input type="text" value="+91 98765 43210"></div>
+            <div class="form-group"><label>Address</label><textarea rows="2">123 Silk Market, T. Nagar, Chennai - 600017</textarea></div>
+            <div class="form-group"><label>Free Shipping Threshold (₹)</label><input type="number" value="999"></div>
+            <div class="form-group"><label>Return Policy (Days)</label><input type="number" value="7"></div>
+            <button type="button" class="btn btn-red btn-sm" onclick="showToast('Settings saved (demo)')">Save Settings</button>
+            <p style="margin-top:16px;font-size:0.85rem;color:var(--text-light);">Settings are stored locally for this demo. Changes reflect on the storefront contact section.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Product Modal -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="product-modal-title">Add Product</h2>
+        <button class="modal-close" id="close-product-modal">✕</button>
+      </div>
+      <form id="product-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Product Images</label>
+            <div class="image-upload-area" id="image-upload-area">
+              <div class="upload-placeholder">+ Add Image URLs below</div>
+              <div class="image-preview-grid" id="image-preview-grid"></div>
+            </div>
+            <textarea name="images" rows="2" placeholder="Option 1: Paste image URLs (one per line)"></textarea>
+            <div class="form-group" style="margin-top:12px;">
+              <label>Option 2: Upload Images</label>
+              <input type="file" id="product-image-upload" multiple accept="image/*">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Product Name *</label>
+            <input type="text" name="name" required placeholder="e.g. Silk Saree">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Category *</label>
+              <select name="category" required>
+                <option value="women">Women</option>
+                <option value="men">Men</option>
+                <option value="kids">Kids</option>
+                <option value="accessories">Accessories</option>
+                <option value="signature">Signature Collection</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Status *</label>
+              <select name="status" required>
+                <option value="active">Active</option>
+                <option value="out_of_stock">Out of Stock</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Price (₹) *</label>
+              <input type="number" name="price" required min="1" placeholder="1299">
+            </div>
+            <div class="form-group">
+              <label>Offer Price (₹)</label>
+              <input type="number" name="offerPrice" min="1" placeholder="999">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Stock Quantity *</label>
+            <input type="number" name="stock" required min="0" placeholder="50">
+          </div>
+          <div class="form-group">
+            <label>Description *</label>
+            <textarea name="description" required rows="4" placeholder="Product description..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Product Badge (select one)</label>
+            <select name="badge">
+              <option value="">Normal Product</option>
+              <option value="featured">Featured Product</option>
+              <option value="signature">Signature Collection</option>
+              <option value="new">New Arrival</option>
+              <option value="best_seller">Best Seller</option>
+              <option value="trending">Trending</option>
+              <option value="limited">Limited Edition</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Fabric</label><input type="text" name="fabric" placeholder="Silk, Cotton, etc."></div>
+            <div class="form-group"><label>Occasion</label><input type="text" name="occasion" placeholder="Wedding, Festive, etc."></div>
+          </div>
+          <div class="form-group">
+            <label>Color Variants <button type="button" class="btn btn-outline btn-sm" id="add-variant-btn">+ Add Color</button></label>
+            <div id="variants-editor" class="variants-editor"></div>
+          </div>
+          <div class="form-group checkbox-group hidden">
+            <input type="checkbox" name="featured" id="featured-check">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline btn-sm" id="close-product-modal-2" onclick="document.getElementById('product-modal').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn-red btn-sm">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Review Modal -->
+  <div class="modal-overlay" id="review-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add Review</h2>
+        <button class="modal-close" id="close-review-modal">✕</button>
+      </div>
+      <form id="admin-review-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Customer Name *</label>
+            <input type="text" name="name" required placeholder="Customer name">
+          </div>
+          <div class="form-group">
+            <label>Rating *</label>
+            <select name="rating" required>
+              <option value="5">5 Stars</option>
+              <option value="4">4 Stars</option>
+              <option value="3">3 Stars</option>
+              <option value="2">2 Stars</option>
+              <option value="1">1 Star</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Review Text *</label>
+            <textarea name="text" required rows="4" placeholder="Customer review..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Product ID (optional)</label>
+            <input type="text" name="productId" placeholder="Link to product">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('review-modal').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn-gold btn-sm">Add Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="firebase.js"></script>
+  <script src="script.js"></script>
+  <script>
+    document.querySelectorAll('[data-admin-nav]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const titles = { dashboard: 'Dashboard', products: 'Product Management', orders: 'Orders', reviews: 'Reviews', customers: 'Customers', settings: 'Settings' };
+        document.getElementById('admin-page-title').textContent = titles[btn.dataset.adminNav] || 'Admin';
+      });
+    });
+  </script>
+</body>
+</html>
