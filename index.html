@@ -9,6 +9,19 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
 </head>
 <body class="admin-site">
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem('sd_admin_session');
+        var session = raw ? JSON.parse(raw) : null;
+        if (!session || session.loggedIn !== true) {
+          document.documentElement.classList.add('sd-admin-locked');
+        }
+      } catch (e) {
+        document.documentElement.classList.add('sd-admin-locked');
+      }
+    })();
+  </script>
 
   <!-- Login Page -->
   <div id="admin-login" class="admin-login">
@@ -36,7 +49,7 @@
         <button type="submit" class="btn btn-red btn-block">Log In</button>
         <p class="login-error" id="login-error"></p>
       </form>
-      <p class="login-copy">© 2026 Sri Devi Textiles. All Rights Reserved.</p>
+      <p class="login-copy">Developed by Jagdish</p>
     </div>
   </div>
 
@@ -264,11 +277,7 @@
               <div class="upload-placeholder">+ Add Image URLs below</div>
               <div class="image-preview-grid" id="image-preview-grid"></div>
             </div>
-            <textarea name="images" rows="2" placeholder="Option 1: Paste image URLs (one per line)"></textarea>
-            <div class="form-group" style="margin-top:12px;">
-              <label>Option 2: Upload Images</label>
-              <input type="file" id="product-image-upload" multiple accept="image/*">
-            </div>
+            <textarea name="images" rows="2" placeholder="Paste image URLs (one per line)"></textarea>
           </div>
           <div class="form-group">
             <label>Product Name *</label>
